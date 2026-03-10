@@ -1,0 +1,111 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { CATEGORIES } from '../lib/categories';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categoryCounts = posts.reduce((acc, post) => {
+  acc[post.data.category] = (acc[post.data.category] || 0) + 1;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<BaseLayout title="首页">
+  <Header slot="header" />
+
+  <section class="hero-pattern -mx-4 px-4 py-12 mb-10 border-b border-stone-200 dark:border-stone-800">
+    <div class="max-w-2xl">
+      <h1 class="text-4xl font-bold mb-3 text-stone-900 dark:text-stone-50">
+        👋 欢迎来到 AI 学习空间
+      </h1>
+      <p class="text-lg text-stone-600 dark:text-stone-400 leading-relaxed">
+        记录和整理 AI 学习技能笔记，构建个人知识体系。从基础概念到实战案例，一步步掌握 AI 技能。
+      </p>
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="text-sm font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-4">学习路径</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {Object.entries(CATEGORIES).map(([key, cat]) => (
+        <a
+          href={`/category/${key}`}
+          class:list={[
+            'card-hover block p-4 rounded-xl border border-stone-100 dark:border-stone-800 transition-colors',
+            cat.color.bg,
+          ]}
+        >
+          <span class="text-2xl">{cat.icon}</span>
+          <h3 class:list={['font-semibold mt-2', cat.color.text]}>{cat.label}</h3>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">{categoryCounts[key] || 0} 篇文章</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-sm font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">最新文章</h2>
+      <div class="flex flex-wrap gap-2" id="category-filter">
+        <button data-category="all" class="filter-btn active text-xs px-3 py-1 rounded-full bg-indigo-600 text-white transition-colors">全部</button>
+        {Object.entries(CATEGORIES).map(([key, cat]) => (
+          <button data-category={key} class="filter-btn text-xs px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+            {cat.icon} {cat.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="space-y-6" id="article-list">
+        {posts.map((post) => (
+          <div data-category={post.data.category}>
+            <ArticleCard
+              id={post.id}
+              title={post.data.title}
+              description={post.data.description}
+              category={post.data.category}
+              tags={post.data.tags}
+              date={post.data.date}
+            />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p class="text-stone-500 dark:text-stone-400 text-center py-12">暂无文章，快来写第一篇吧！</p>
+    )}
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll('.filter-btn');
+  const articles = document.querySelectorAll('#article-list > div[data-category]');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const cat = btn.getAttribute('data-category');
+
+      buttons.forEach((b) => {
+        b.classList.remove('active', 'bg-indigo-600', 'text-white');
+        b.classList.add('bg-stone-100', 'dark:bg-stone-800', 'text-stone-600', 'dark:text-stone-400');
+      });
+      btn.classList.add('active', 'bg-indigo-600', 'text-white');
+      btn.classList.remove('bg-stone-100', 'dark:bg-stone-800', 'text-stone-600', 'dark:text-stone-400');
+
+      articles.forEach((article) => {
+        if (cat === 'all' || article.getAttribute('data-category') === cat) {
+          (article as HTMLElement).style.display = '';
+        } else {
+          (article as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

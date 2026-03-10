@@ -1,0 +1,74 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogType?: string;
+}
+
+const { title, description = 'AI 学习技能博客 - 记录和整理 AI 学习笔记', ogType = 'website' } = Astro.props;
+const pageTitle = `${title} | AI 学习博客`;
+---
+
+<html lang="zh-CN" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:site_name" content="AI 学习博客" />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={Astro.url} />
+    <link rel="alternate" type="application/rss+xml" title="AI 学习博客" href="/rss.xml" />
+    <slot name="head" />
+    <script is:inline defer src="http://47.94.229.233:8080/script.js" data-website-id="9a942e6a-5098-4379-ab76-92197281c085"></script>
+    <script is:inline>
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-100 min-h-screen flex flex-col transition-colors">
+    <slot name="header" />
+    <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+      <slot />
+    </main>
+    <slot name="footer" />
+
+    <button
+      id="back-to-top"
+      class="fixed bottom-6 right-6 z-50 hidden w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-lg transition-all cursor-pointer"
+      aria-label="回到顶部"
+    >
+      <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+
+    <script is:inline>
+      (function() {
+        var btn = document.getElementById('back-to-top');
+        if (!btn) return;
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 300) {
+            btn.classList.remove('hidden');
+          } else {
+            btn.classList.add('hidden');
+          }
+        });
+        btn.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

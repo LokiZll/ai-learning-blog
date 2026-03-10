@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const sorted = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  return sorted.map((post, i) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      prevPost: sorted[i + 1] ? { id: sorted[i + 1].id, title: sorted[i + 1].data.title } : null,
+      nextPost: sorted[i - 1] ? { id: sorted[i - 1].id, title: sorted[i - 1].data.title } : null,
+    },
+  }));
+}
+
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await render(post);
+
+// Reading time: estimate ~400 characters per minute for Chinese text
+const body = post.body ?? '';
+const readingTime = Math.max(1, Math.ceil(body.length / 400));
+---
+
+<ArticleLayout
+  title={post.data.title}
+  description={post.data.description}
+  category={post.data.category}
+  tags={post.data.tags}
+  date={post.data.date}
+  headings={headings}
+  prevPost={prevPost}
+  nextPost={nextPost}
+  series={post.data.series}
+  seriesOrder={post.data.seriesOrder}
+  currentId={post.id}
+  readingTime={readingTime}
+  updatedDate={post.data.updatedDate}
+>
+  <Content />
+</ArticleLayout>

@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { CATEGORIES, type Category } from '../../lib/categories';
+
+export function getStaticPaths() {
+  return Object.keys(CATEGORIES).map((category) => ({
+    params: { category },
+  }));
+}
+
+const { category } = Astro.params;
+const categoryInfo = CATEGORIES[category as Category];
+const posts = (await getCollection('blog', ({ data }) => data.category === category && !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title={categoryInfo.label} description={categoryInfo.description}>
+  <Header slot="header" />
+
+  <section>
+    <h1 class="text-3xl font-bold mb-2">{categoryInfo.icon} {categoryInfo.label}</h1>
+    <p class="text-stone-600 dark:text-stone-400 mb-8">{categoryInfo.description}</p>
+
+    {posts.length > 0 ? (
+      <div class="space-y-6">
+        {posts.map((post) => (
+          <ArticleCard
+            id={post.id}
+            title={post.data.title}
+            description={post.data.description}
+            category={post.data.category}
+            tags={post.data.tags}
+            date={post.data.date}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="text-stone-500 dark:text-stone-400 text-center py-12">该分类下暂无文章</p>
+    )}
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>

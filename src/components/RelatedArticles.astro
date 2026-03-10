@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import { CATEGORIES, type Category } from '../lib/categories';
+
+interface Props {
+  currentId: string;
+  category: string;
+  tags: string[];
+}
+
+const { currentId, category, tags } = Astro.props;
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+const scored = allPosts
+  .filter((post) => post.id !== currentId)
+  .map((post) => {
+    let score = 0;
+    if (post.data.category === category) score += 1;
+    for (const tag of tags) {
+      if (post.data.tags.includes(tag)) score += 1;
+    }
+    return { post, score };
+  })
+  .filter(({ score }) => score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3);
+---
+
+{scored.length > 0 && (
+  <section class="mt-12 pt-6 border-t border-stone-200 dark:border-stone-800">
+    <h2 class="text-lg font-semibold text-stone-900 dark:text-stone-50 mb-4">相关文章</h2>
+    <div class="grid gap-4 sm:grid-cols-3">
+      {scored.map(({ post }) => {
+        const catInfo = CATEGORIES[post.data.category as Category];
+        return (
+          <a
+            href={`/blog/${post.id}`}
+            class="block rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 hover:shadow-md transition-shadow"
+          >
+            <span
+              class:list={[
+                'inline-block text-xs px-2 py-0.5 rounded-full mb-2',
+                catInfo.color.badge,
+              ]}
+            >
+              {catInfo.icon} {catInfo.label}
+            </span>
+            <h3 class="font-medium text-stone-900 dark:text-stone-100 mb-1 line-clamp-2">
+              {post.data.title}
+            </h3>
+            <p class="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">
+              {post.data.description}
+            </p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+)}

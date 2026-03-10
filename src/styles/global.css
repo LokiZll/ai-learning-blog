@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-cat-basics: #6366f1;
+  --color-cat-basics-light: #e0e7ff;
+  --color-cat-basics-dark: rgba(99, 102, 241, 0.2);
+  --color-cat-prompt: #8b5cf6;
+  --color-cat-prompt-light: #ede9fe;
+  --color-cat-prompt-dark: rgba(139, 92, 246, 0.2);
+  --color-cat-tools: #14b8a6;
+  --color-cat-tools-light: #ccfbf1;
+  --color-cat-tools-dark: rgba(20, 184, 166, 0.2);
+  --color-cat-cases: #f59e0b;
+  --color-cat-cases-light: #fef3c7;
+  --color-cat-cases-dark: rgba(245, 158, 11, 0.2);
+  --color-cat-claude: #e11d48;
+  --color-cat-claude-light: #ffe4e6;
+  --color-cat-claude-dark: rgba(225, 29, 72, 0.2);
+  --color-primary: #4f46e5;
+  --color-primary-light: #818cf8;
+  --color-secondary: #f59e0b;
+  --color-secondary-light: #fbbf24;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+    font-family:
+      -apple-system, BlinkMacSystemFont,
+      "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC",
+      "Microsoft YaHei", "WenQuanYi Micro Hei",
+      sans-serif;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .prose {
+    --tw-prose-body: #44403c;
+    --tw-prose-headings: #1c1917;
+    --tw-prose-links: #4f46e5;
+    --tw-prose-code: #4f46e5;
+  }
+
+  .dark .prose {
+    --tw-prose-body: #d6d3d1;
+    --tw-prose-headings: #fafaf9;
+    --tw-prose-links: #818cf8;
+    --tw-prose-code: #a5b4fc;
+  }
+
+  .prose pre {
+    @apply rounded-xl border border-stone-200 dark:border-stone-800;
+    position: relative;
+  }
+
+  .prose code:not(pre code) {
+    @apply px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-sm font-normal;
+  }
+  .prose code:not(pre code)::before,
+  .prose code:not(pre code)::after {
+    content: none;
+  }
+
+  mark {
+    @apply bg-amber-200 dark:bg-amber-800/50 text-inherit rounded-sm px-0.5;
+  }
+}
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  z-index: 100;
+  transition: width 50ms linear;
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+.link-animated {
+  position: relative;
+  text-decoration: none;
+}
+.link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+.dark .link-animated::after {
+  background: var(--color-primary-light);
+}
+.link-animated:hover::after {
+  width: 100%;
+}
+
+.hero-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgb(0 0 0 / 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.dark .hero-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.03) 1px, transparent 0);
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+pre:hover .code-copy-btn,
+.code-copy-btn:focus {
+  opacity: 1;
+}

@@ -1,0 +1,45 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+---
+
+{totalPages > 1 && (
+  <nav class="flex justify-center gap-2 mt-10" aria-label="分页">
+    {currentPage > 1 && (
+      <a
+        href={currentPage === 2 ? baseUrl : `${baseUrl}/${currentPage - 1}`}
+        class="px-4 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+      >
+        上一页
+      </a>
+    )}
+
+    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+      <a
+        href={page === 1 ? baseUrl : `${baseUrl}/${page}`}
+        class:list={[
+          'px-4 py-2 text-sm rounded-lg transition-colors',
+          page === currentPage
+            ? 'bg-indigo-600 text-white'
+            : 'border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800',
+        ]}
+      >
+        {page}
+      </a>
+    ))}
+
+    {currentPage < totalPages && (
+      <a
+        href={`${baseUrl}/${currentPage + 1}`}
+        class="px-4 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+      >
+        下一页
+      </a>
+    )}
+  </nav>
+)}

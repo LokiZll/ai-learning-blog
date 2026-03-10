@@ -1,0 +1,49 @@
+---
+import { CATEGORIES, type Category } from '../lib/categories';
+import TagList from './TagList.astro';
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  category: Category;
+  tags: string[];
+  date: Date;
+}
+
+const { id, title, description, category, tags, date } = Astro.props;
+const categoryInfo = CATEGORIES[category];
+const formattedDate = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<article class="card-hover rounded-xl bg-white dark:bg-stone-900 shadow-sm hover:shadow-md border border-stone-100 dark:border-stone-800 overflow-hidden">
+  <div class:list={['flex', 'border-l-4', categoryInfo.color.border]}>
+    <div class="p-6 flex-1">
+      <div class="flex items-center gap-3 mb-3 text-sm">
+        <a
+          href={`/category/${category}`}
+          class:list={[
+            'px-2.5 py-0.5 rounded-full transition-colors',
+            categoryInfo.color.badge,
+            categoryInfo.color.badgeHover,
+          ]}
+        >
+          {categoryInfo.icon} {categoryInfo.label}
+        </a>
+        <time datetime={date.toISOString()} class="text-stone-500 dark:text-stone-400">
+          {formattedDate}
+        </time>
+      </div>
+
+      <h2 class="text-xl font-semibold mb-2">
+        <a href={`/blog/${id}`} class="link-animated hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          {title}
+        </a>
+      </h2>
+
+      <p class="text-stone-600 dark:text-stone-400 mb-4 line-clamp-2">{description}</p>
+
+      <TagList tags={tags} />
+    </div>
+  </div>
+</article>

@@ -1,0 +1,44 @@
+---
+interface Props {
+  term: string;
+}
+
+const { term } = Astro.props;
+---
+
+<section class="mt-12 pt-8 border-t border-stone-200 dark:border-stone-800">
+  <h3 class="text-lg font-semibold mb-4 text-stone-800 dark:text-stone-200">评论</h3>
+  <div id="giscus-container">
+    <p class="text-sm text-stone-500 dark:text-stone-400">评论系统加载中...</p>
+  </div>
+</section>
+
+<script define:vars={{ term }}>
+  function loadGiscus() {
+    const container = document.getElementById('giscus-container');
+    if (!container) return;
+
+    const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+
+    container.innerHTML = '';
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'LokiZll/ai-learning-blog');
+    script.setAttribute('data-repo-id', 'R_kgDORi59yA');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDORi59yM4C4Ejf');
+    script.setAttribute('data-mapping', 'specific');
+    script.setAttribute('data-term', term);
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-theme', theme);
+    script.setAttribute('data-lang', 'zh-CN');
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    container.appendChild(script);
+  }
+
+  loadGiscus();
+</script>

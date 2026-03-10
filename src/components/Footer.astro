@@ -1,0 +1,22 @@
+---
+import { CATEGORIES } from '../lib/categories';
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-stone-100 dark:bg-stone-900 mt-16">
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      {Object.entries(CATEGORIES).map(([key, cat]) => (
+        <a
+          href={`/category/${key}`}
+          class="text-sm text-stone-600 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+        >
+          {cat.icon} {cat.label}
+        </a>
+      ))}
+    </div>
+    <div class="border-t border-stone-200 dark:border-stone-800 pt-6 text-center text-sm text-stone-500 dark:text-stone-400">
+      <p>&copy; {year} AI 学习博客. Powered by <a href="https://astro.build" class="hover:text-indigo-600 dark:hover:text-indigo-400 underline" target="_blank" rel="noopener">Astro</a> | <a href="/rss.xml" class="hover:text-indigo-600 dark:hover:text-indigo-400 underline">RSS 订阅</a></p>
+    </div>
+  </div>
+</footer>

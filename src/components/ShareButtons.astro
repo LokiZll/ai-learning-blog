@@ -1,0 +1,45 @@
+---
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+---
+
+<div class="flex items-center gap-3">
+  <span class="text-sm text-stone-500 dark:text-stone-400">分享：</span>
+  <button
+    id="copy-link-btn"
+    class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+    title="复制链接"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+  </button>
+  <a
+    href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener"
+    class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+    title="分享到 Twitter"
+  >
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  </a>
+</div>
+
+<script>
+  const btn = document.getElementById('copy-link-btn');
+  btn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const svg = btn.innerHTML;
+      btn.innerHTML = '<span class="text-xs">已复制</span>';
+      setTimeout(() => { btn.innerHTML = svg; }, 2000);
+    });
+  });
+</script>
