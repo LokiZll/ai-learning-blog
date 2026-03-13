@@ -8,7 +8,10 @@ import TagList from '../components/TagList.astro';
 import SeriesNav from '../components/SeriesNav.astro';
 import RelatedArticles from '../components/RelatedArticles.astro';
 import ShareButtons from '../components/ShareButtons.astro';
-import Giscus from '../components/Giscus.astro';
+import CommentSection from '../components/CommentSection.astro';
+import BackToTop from '../components/BackToTop.astro';
+import ImageLightbox from '../components/ImageLightbox.astro';
+import LikeButton from '../components/LikeButton.astro';
 import { CATEGORIES, type Category } from '../lib/categories';
 
 interface Props {
@@ -24,10 +27,11 @@ interface Props {
   seriesOrder?: number;
   currentId?: string;
   readingTime?: number;
+  wordCount?: number;
   updatedDate?: Date;
 }
 
-const { title, description, category, tags, date, headings, prevPost, nextPost, series, seriesOrder, currentId, readingTime, updatedDate } = Astro.props;
+const { title, description, category, tags, date, headings, prevPost, nextPost, series, seriesOrder, currentId, readingTime, wordCount, updatedDate } = Astro.props;
 const categoryInfo = CATEGORIES[category];
 const formattedDate = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 const formattedUpdatedDate = updatedDate?.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -53,39 +57,83 @@ const jsonLd = JSON.stringify({
   <div id="reading-progress" class="reading-progress" style="width: 0%"></div>
 
   <article class="relative">
-    <header class="mb-8 pb-6 border-b border-stone-200 dark:border-stone-800 relative">
-      <div class={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${categoryInfo.color.accent}`}></div>
-      <div class="pl-5">
-        <div class="flex items-center gap-3 mb-3 text-sm">
+    <!-- Hero Section -->
+    <header class="hero-section relative overflow-hidden">
+      <!-- 装饰性背景 -->
+      <div class="hero-pattern absolute inset-0 opacity-50"></div>
+      <div class="hero-gradient absolute inset-0"></div>
+
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <!-- 元信息卡片 -->
+        <div class="flex flex-wrap items-center gap-3 mb-6 animate-fade-in-up">
           <a
             href={`/category/${category}`}
             class:list={[
-              'px-2.5 py-0.5 rounded-full transition-colors',
+              'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300',
               categoryInfo.color.badge,
               categoryInfo.color.badgeHover,
+              'hover:scale-105'
             ]}
           >
-            {categoryInfo.icon} {categoryInfo.label}
+            <i class={`${categoryInfo.icon} mr-1.5`}></i>
+            {categoryInfo.label}
           </a>
-          <time datetime={date.toISOString()} class="text-stone-500 dark:text-stone-400">
+          <span class="meta-divider">|</span>
+          <time datetime={date.toISOString()} class="meta-item">
+            <i class="far fa-calendar-alt mr-1.5"></i>
             {formattedDate}
           </time>
           {formattedUpdatedDate && (
             <>
-              <span class="text-stone-400 dark:text-stone-500">·</span>
-              <span class="text-stone-500 dark:text-stone-400">更新于 {formattedUpdatedDate}</span>
+              <span class="meta-divider">|</span>
+              <span class="meta-item">
+                <i class="fas fa-sync-alt mr-1.5"></i>
+                更新于 {formattedUpdatedDate}
+              </span>
             </>
           )}
           {readingTime && (
-            <span class="text-stone-400 dark:text-stone-500">·</span>
-            <span class="text-stone-500 dark:text-stone-400">约 {readingTime} 分钟</span>
+            <>
+              <span class="meta-divider">|</span>
+              <span class="meta-item">
+                <i class="far fa-clock mr-1.5"></i>
+                约 {readingTime} 分钟
+              </span>
+            </>
+          )}
+          {wordCount && (
+            <>
+              <span class="meta-divider">|</span>
+              <span class="meta-item">
+                <i class="far fa-file-word mr-1.5"></i>
+                {wordCount.toLocaleString()} 字
+              </span>
+            </>
           )}
         </div>
-        <h1 class="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-50">{title}</h1>
-        <p class="text-stone-600 dark:text-stone-400 text-lg">{description}</p>
-        <div class="mt-4">
+
+        <!-- 标题 -->
+        <h1 class="hero-title text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 animate-fade-in-up delay-1">
+          {title}
+        </h1>
+
+        <!-- 描述 -->
+        <p class="hero-description text-lg sm:text-xl mb-8 max-w-2xl animate-fade-in-up delay-2">
+          {description}
+        </p>
+
+        <!-- 标签和点赞 -->
+        <div class="flex flex-wrap items-center gap-4 animate-fade-in-up delay-3">
           <TagList tags={tags} />
+          {currentId && <LikeButton slug={currentId} />}
         </div>
+      </div>
+
+      <!-- 底部装饰 -->
+      <div class="hero-decoration">
+        <svg class="w-full h-12" viewBox="0 0 1440 48" preserveAspectRatio="none">
+          <path fill="currentColor" class="dark:fill-zinc-900 fill-white" d="M0,24 C480,48 960,48 1440,24 L1440,48 L0,48 Z"></path>
+        </svg>
       </div>
     </header>
 
@@ -93,27 +141,30 @@ const jsonLd = JSON.stringify({
       <SeriesNav series={series} seriesOrder={seriesOrder} currentId={currentId} />
     )}
 
-    <div class="lg:grid lg:grid-cols-[1fr_200px] lg:gap-10">
+    <div class="lg:grid lg:grid-cols-[1fr_240px] lg:gap-10">
       {headings.filter((h) => h.depth >= 2 && h.depth <= 3).length > 0 && (
         <div class="lg:hidden mb-6">
           <button
             id="mobile-toc-toggle"
-            class="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-sm font-medium"
+            class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300"
           >
-            <span>目录</span>
+            <span class="flex items-center">
+              <i class="fas fa-list-ul mr-2 text-blue-500"></i>
+              目录
+            </span>
             <svg id="mobile-toc-arrow" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
-          <nav id="mobile-toc-list" class="hidden mt-2 px-4 py-3 rounded-lg bg-stone-100 dark:bg-stone-800">
-            <ul class="space-y-1.5 text-sm">
+          <nav id="mobile-toc-list" class="hidden mt-2 px-4 py-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+            <ul class="space-y-1 text-sm">
               {headings.filter((h) => h.depth >= 2 && h.depth <= 3).map((heading) => (
                 <li>
                   <a
                     href={`#${heading.slug}`}
                     class:list={[
-                      'block py-0.5 text-stone-600 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors',
-                      heading.depth === 2 ? 'pl-0' : 'pl-4',
+                      'block py-2 px-3 rounded-lg text-zinc-600 dark:text-zinc-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200',
+                      heading.depth === 2 ? 'pl-2' : 'pl-5',
                     ]}
                   >
                     {heading.text}
@@ -140,14 +191,17 @@ const jsonLd = JSON.stringify({
       <RelatedArticles currentId={currentId} category={category} tags={tags} />
     )}
 
-    <div class="mt-8 pt-6 border-t border-stone-200 dark:border-stone-800">
+    <div class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800">
       <ShareButtons title={title} url={articleUrl} />
     </div>
 
     <ArticleNav prev={prevPost} next={nextPost} />
 
-    <Giscus term={title} />
+    {currentId && <CommentSection slug={currentId} />}
   </article>
+
+  <BackToTop />
+  <ImageLightbox />
 
   <Footer slot="footer" />
 </BaseLayout>
@@ -172,10 +226,33 @@ const jsonLd = JSON.stringify({
     btn.addEventListener('click', () => {
       const code = pre.querySelector('code');
       if (code) {
-        navigator.clipboard.writeText(code.textContent || '').then(() => {
-          btn.textContent = '已复制';
-          setTimeout(() => { btn.textContent = '复制'; }, 2000);
-        });
+        const text = code.textContent || '';
+        // 使用兼容的复制方式，支持 HTTP 环境
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => {
+            btn.textContent = '已复制';
+            setTimeout(() => { btn.textContent = '复制'; }, 2000);
+          }).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+        function fallbackCopy(copyText) {
+          const textarea = document.createElement('textarea');
+          textarea.value = copyText;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand('copy');
+            btn.textContent = '已复制';
+            setTimeout(() => { btn.textContent = '复制'; }, 2000);
+          } catch (e) {
+            btn.textContent = '复制失败';
+            setTimeout(() => { btn.textContent = '复制'; }, 2000);
+          }
+          document.body.removeChild(textarea);
+        }
       }
     });
     pre.appendChild(btn);
@@ -198,4 +275,63 @@ const jsonLd = JSON.stringify({
       });
     });
   }
+</script>
+
+<script>
+  // Mermaid 图表初始化
+  async function initMermaid() {
+    const mermaidElements = document.querySelectorAll('.language-mermaid, .mermaid');
+    if (mermaidElements.length === 0) return;
+
+    // 动态加载 Mermaid
+    if (typeof mermaid === 'undefined') {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.min.js';
+      script.onload = () => renderMermaid();
+      document.head.appendChild(script);
+    } else {
+      renderMermaid();
+    }
+  }
+
+  function renderMermaid() {
+    if (typeof mermaid === 'undefined') return;
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+      },
+    });
+
+    // 查找所有 mermaid 代码块
+    document.querySelectorAll('pre code.language-mermaid').forEach(async (code) => {
+      const pre = code.parentElement;
+      const graphDefinition = code.textContent || '';
+
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+
+      try {
+        const { svg } = await mermaid.render(`mermaid-${Math.random().toString(36).substr(2, 9)}`, graphDefinition);
+        div.innerHTML = svg;
+        pre?.replaceWith(div);
+      } catch (e) {
+        console.error('Mermaid render error:', e);
+        div.innerHTML = `<pre class="text-red-500">${e.message}</pre>`;
+        pre?.replaceWith(div);
+      }
+    });
+  }
+
+  // 页面加载完成后初始化
+  initMermaid();
+
+  // 监听主题变化
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    initMermaid();
+  });
 </script>

@@ -1,0 +1,112 @@
+---
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<div id="comments-section" class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800" data-slug={slug}>
+  <h2 class="text-xl font-bold mb-4">评论</h2>
+
+  <div id="comment-form-container" class="mb-6 hidden">
+    <form id="comment-form" class="space-y-3">
+      <textarea
+        id="comment-content"
+        name="content"
+        rows="3"
+        placeholder="写下你的评论..."
+        required
+        class="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
+      ></textarea>
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        提交评论
+      </button>
+    </form>
+  </div>
+
+  <div id="login-prompt" class="mb-6 text-sm text-zinc-500 hidden">
+    <a href="/login" class="text-blue-600 hover:underline">登录</a> 后发表评论
+  </div>
+
+  <div id="comments-list" class="space-y-4">
+    <p class="text-zinc-500 text-sm">加载中...</p>
+  </div>
+</div>
+
+<script>
+  const section = document.getElementById('comments-section');
+  const slug = section?.dataset.slug;
+  let currentUser = null;
+
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      if (data.loggedIn) {
+        currentUser = data.username;
+        document.getElementById('comment-form-container')?.classList.remove('hidden');
+      } else {
+        document.getElementById('login-prompt')?.classList.remove('hidden');
+      }
+    } catch (e) {
+      console.error('Auth check failed:', e);
+      document.getElementById('login-prompt')?.classList.remove('hidden');
+    }
+    loadComments();
+  }
+
+  async function loadComments() {
+    try {
+      const res = await fetch(`/api/comments?slug=${encodeURIComponent(slug)}`);
+      const data = await res.json();
+      const list = document.getElementById('comments-list');
+
+      if (!data.comments || data.comments.length === 0) {
+        list!.innerHTML = '<p class="text-zinc-500 text-sm">暂无评论，快来抢沙发~</p>';
+        return;
+      }
+
+      list!.innerHTML = data.comments.map(c => `
+        <div class="p-4 bg-zinc-50 dark:bg-zinc-900 rounded-lg">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="font-medium text-zinc-700 dark:text-zinc-300">${c.username}</span>
+            <span class="text-xs text-zinc-400">${new Date(c.created_at).toLocaleString('zh-CN')}</span>
+          </div>
+          <p class="text-zinc-600 dark:text-zinc-400">${c.content}</p>
+        </div>
+      `).join('');
+    } catch (e) {
+      console.error('Load comments failed:', e);
+      document.getElementById('comments-list')!.innerHTML = '<p class="text-red-500 text-sm">加载评论失败</p>';
+    }
+  }
+
+  document.getElementById('comment-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const content = document.getElementById('comment-content').value;
+
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, content })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('comment-content').value = '';
+        loadComments();
+      } else {
+        alert(data.error || '提交失败');
+      }
+    } catch (err) {
+      alert('网络错误');
+    }
+  });
+
+  checkAuth();
+</script>

@@ -1,0 +1,77 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+import { initDB } from '../lib/db';
+
+// 获取用户点赞
+const cookies = Astro.cookies;
+const session = cookies.get('session');
+let likedArticles: any[] = [];
+
+if (session) {
+  try {
+    const user = JSON.parse(session.value);
+    const db = await initDB();
+    const result = db.exec(`SELECT article_slug FROM likes WHERE user_id = ?`, [user.userId]);
+    const likedSlugs = result.length > 0 ? result[0].values.map(row => row[0] as string) : [];
+
+    if (likedSlugs.length > 0) {
+      const posts = await getCollection('blog', ({ data }) => !data.draft);
+      likedArticles = posts
+        .filter(post => likedSlugs.includes(post.id))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+    }
+  } catch (e) {
+    console.error('Error loading likes:', e);
+  }
+}
+
+const hasLikes = likedArticles.length > 0;
+---
+
+<BaseLayout title="我的点赞 - AI 学习博客">
+  <Header slot="header" />
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex items-center gap-3 mb-8">
+      <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+      <h1 class="text-2xl font-bold">我的点赞</h1>
+      <span class="text-zinc-500 text-sm">({likedArticles.length})</span>
+    </div>
+
+    {!hasLikes && (
+      <div class="text-center py-16">
+        <svg class="w-16 h-16 mx-auto text-zinc-300 dark:text-zinc-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        <p class="text-zinc-500 mb-2">还没有点赞过任何文章</p>
+        <p class="text-zinc-400 text-sm">去发现喜欢的文章吧</p>
+        <a href="/" class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          浏览文章
+        </a>
+      </div>
+    )}
+
+    {hasLikes && (
+      <div class="space-y-4">
+        {likedArticles.map(post => (
+          <ArticleCard
+            id={post.id}
+            title={post.data.title}
+            description={post.data.description}
+            category={post.data.category}
+            tags={post.data.tags}
+            date={post.data.date}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+  <Footer slot="footer" />
+</BaseLayout>

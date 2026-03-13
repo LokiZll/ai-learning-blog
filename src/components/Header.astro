@@ -4,77 +4,77 @@ import ThemeToggle from './ThemeToggle.tsx';
 import Search from './Search.tsx';
 
 const currentPath = Astro.url.pathname;
+
+function isActive(path: string) {
+  return currentPath === path || currentPath.startsWith(path + '/');
+}
+
+const navActiveClass = 'text-zinc-900 dark:text-zinc-100 font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:rounded-full';
+const navDefaultClass = 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100';
 ---
 
-<header class="border-b border-stone-200/80 dark:border-stone-800/80 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-md sticky top-0 z-50">
-  <nav class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition-opacity">
-      📖 AI 学习博客
+<header class="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-lg sticky top-0 z-50">
+  <nav class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="/" class="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 hover:opacity-80 transition-opacity">
+      AI 学习博客
     </a>
 
-    <div class="hidden md:flex items-center gap-6">
-      <a
-        href="/"
-        class:list={[
-          'relative text-sm py-5 transition-colors',
-          currentPath === '/'
-            ? 'text-indigo-600 dark:text-indigo-400 font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:rounded-full'
-            : 'text-stone-600 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400',
-        ]}
-      >
+    <div class="hidden md:flex items-center gap-1">
+      <a href="/" class:list={['relative text-sm px-3 py-4 transition-colors', isActive('/') && currentPath === '/' ? navActiveClass : navDefaultClass]}>
         首页
       </a>
-      {Object.entries(CATEGORIES).map(([key, { label, icon }]) => (
-        <a
-          href={`/category/${key}`}
-          class:list={[
-            'relative text-sm py-5 transition-colors',
-            currentPath === `/category/${key}`
-              ? 'text-indigo-600 dark:text-indigo-400 font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:rounded-full'
-              : 'text-stone-600 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400',
-          ]}
-        >
-          {icon} {label}
-        </a>
-      ))}
-      <a
-        href="/tags"
-        class:list={[
-          'relative text-sm py-5 transition-colors',
-          currentPath === '/tags'
-            ? 'text-indigo-600 dark:text-indigo-400 font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-indigo-600 dark:after:bg-indigo-400 after:rounded-full'
-            : 'text-stone-600 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400',
-        ]}
-      >
+      <a href="/series" class:list={['relative text-sm px-3 py-4 transition-colors', isActive('/series') ? navActiveClass : navDefaultClass]}>
+        系列
+      </a>
+      <a href="/tags" class:list={['relative text-sm px-3 py-4 transition-colors', isActive('/tags') ? navActiveClass : navDefaultClass]}>
         标签
+      </a>
+      <a href="/archive" class:list={['relative text-sm px-3 py-4 transition-colors', isActive('/archive') ? navActiveClass : navDefaultClass]}>
+        归档
+      </a>
+      <a href="/about" class:list={['relative text-sm px-3 py-4 transition-colors', isActive('/about') ? navActiveClass : navDefaultClass]}>
+        关于
       </a>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2">
       <Search client:load />
       <ThemeToggle client:load />
 
+      <div id="auth-section" class="flex items-center gap-2 text-sm">
+        <a href="/login" class="px-3 py-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hidden">登录</a>
+        <a href="/register" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hidden">注册</a>
+        <div id="user-menu" class="hidden items-center gap-2">
+          <a href="/liked" class="px-3 py-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">我的点赞</a>
+          <span id="username" class="text-zinc-600 dark:text-zinc-300"></span>
+          <button id="logout-btn" class="px-3 py-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100">登出</button>
+        </div>
+      </div>
+
       <button
         id="mobile-menu-btn"
-        class="md:hidden p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+        class="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
         aria-label="打开菜单"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
   </nav>
 
-  <div id="mobile-menu" class="hidden md:hidden border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950">
-    <div class="px-4 py-3 space-y-2">
-      <a href="/" class="block py-2 text-sm hover:text-indigo-600 dark:hover:text-indigo-400">首页</a>
-      {Object.entries(CATEGORIES).map(([key, { label, icon }]) => (
-        <a href={`/category/${key}`} class="block py-2 text-sm hover:text-indigo-600 dark:hover:text-indigo-400">
-          {icon} {label}
+  <div id="mobile-menu" class="hidden md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+    <div class="px-4 py-3 space-y-1">
+      <a href="/" class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">首页</a>
+      {Object.entries(CATEGORIES).map(([key, { label }]) => (
+        <a href={`/category/${key}`} class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+          {label}
         </a>
       ))}
-      <a href="/tags" class="block py-2 text-sm hover:text-indigo-600 dark:hover:text-indigo-400">标签</a>
+      <a href="/series" class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">系列</a>
+      <a href="/tags" class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">标签</a>
+      <a href="/archive" class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">归档</a>
+      <a href="/about" class="block py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">关于</a>
     </div>
   </div>
 </header>
@@ -85,4 +85,37 @@ const currentPath = Astro.url.pathname;
   btn?.addEventListener('click', () => {
     menu?.classList.toggle('hidden');
   });
+
+  // 检查登录状态
+  async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      const authSection = document.getElementById('auth-section');
+      const loginLink = authSection?.querySelector('a[href="/login"]');
+      const registerLink = authSection?.querySelector('a[href="/register"]');
+      const userMenu = document.getElementById('user-menu');
+      const usernameSpan = document.getElementById('username');
+
+      if (data.loggedIn) {
+        loginLink?.classList.add('hidden');
+        registerLink?.classList.add('hidden');
+        userMenu?.classList.remove('hidden');
+        userMenu?.classList.add('flex');
+        if (usernameSpan) usernameSpan.textContent = data.username;
+      } else {
+        loginLink?.classList.remove('hidden');
+        registerLink?.classList.remove('hidden');
+      }
+    } catch (e) {
+      console.error('Auth check failed:', e);
+    }
+  }
+
+  // 登出 - 使用跳转方式
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    window.location.href = '/api/auth/logout';
+  });
+
+  checkAuth();
 </script>
