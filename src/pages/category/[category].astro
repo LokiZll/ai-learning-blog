@@ -1,29 +1,54 @@
 ---
+export const prerender = true;
+
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Pagination from '../../components/Pagination.astro';
 import { CATEGORIES, type Category } from '../../lib/categories';
+import { POSTS_PER_PAGE } from '../../lib/constants';
 
-export function getStaticPaths() {
-  return Object.keys(CATEGORIES).map((category) => ({
-    params: { category },
-  }));
+export async function getStaticPaths() {
+  const categories = Object.keys(CATEGORIES);
+  const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+  return categories.map(category => {
+    const categoryPosts = allPosts.filter(p => p.data.category === category);
+    return {
+      params: { category },
+      props: {
+        category,
+        totalPages: Math.ceil(categoryPosts.length / POSTS_PER_PAGE),
+        totalPosts: categoryPosts.length,
+      },
+    };
+  });
 }
 
-const { category } = Astro.params;
+interface Props {
+  category: string;
+  totalPages: number;
+  totalPosts: number;
+}
+
+const { category, totalPages, totalPosts } = Astro.props;
+const page = 1;
 const categoryInfo = CATEGORIES[category as Category];
-const posts = (await getCollection('blog', ({ data }) => data.category === category && !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const allPosts = await getCollection('blog', ({ data }) => data.category === category && !data.draft);
+const posts = allPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, POSTS_PER_PAGE);
 ---
 
-<BaseLayout title={categoryInfo.label} description={categoryInfo.description}>
+<BaseLayout title={page === 1 ? categoryInfo.label : `${categoryInfo.label} - 第${page}页`} description={categoryInfo.description}>
   <Header slot="header" />
 
   <section>
     <h1 class="text-3xl font-bold mb-2">{categoryInfo.icon} {categoryInfo.label}</h1>
-    <p class="text-stone-600 dark:text-stone-400 mb-8">{categoryInfo.description}</p>
+    <p class="text-stone-600 dark:text-stone-400 mb-8">共 {totalPosts} 篇文章</p>
 
     {posts.length > 0 ? (
       <div class="space-y-6">
@@ -40,6 +65,14 @@ const posts = (await getCollection('blog', ({ data }) => data.category === categ
       </div>
     ) : (
       <p class="text-stone-500 dark:text-stone-400 text-center py-12">该分类下暂无文章</p>
+    )}
+
+    {totalPages > 1 && (
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl={`/category/${category}`}
+      />
     )}
   </section>
 

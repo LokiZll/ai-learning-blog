@@ -1,40 +1,77 @@
 ---
+export const prerender = true;
+
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import { POSTS_PER_PAGE } from '../../lib/constants';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   const tags = [...new Set(posts.flatMap((p) => p.data.tags))];
-  return tags.map((tag) => ({ params: { tag } }));
+
+  return tags.map(tag => {
+    const tagPosts = posts.filter(p => p.data.tags.includes(tag));
+    return {
+      params: { tag },
+      props: {
+        tag,
+        totalPages: Math.ceil(tagPosts.length / POSTS_PER_PAGE),
+        totalPosts: tagPosts.length,
+      },
+    };
+  });
 }
 
-const { tag } = Astro.params;
-const posts = (await getCollection('blog', ({ data }) => data.tags.includes(tag!) && !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+interface Props {
+  tag: string;
+  totalPages: number;
+  totalPosts: number;
+}
+
+const { tag, totalPages, totalPosts } = Astro.props;
+const page = 1;
+
+const allPosts = await getCollection('blog', ({ data }) => data.tags.includes(tag) && !data.draft);
+const posts = allPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, POSTS_PER_PAGE);
 ---
 
-<BaseLayout title={`#${tag}`} description={`标签「${tag}」下的所有文章`}>
+<BaseLayout title={page === 1 ? `#${tag}` : `#${tag} - 第${page}页`} description={`标签「${tag}」下的所有文章`}>
   <Header slot="header" />
 
   <section>
     <h1 class="text-3xl font-bold mb-2">#{tag}</h1>
-    <p class="text-stone-600 dark:text-stone-400 mb-8">共 {posts.length} 篇文章</p>
+    <p class="text-stone-600 dark:text-stone-400 mb-8">共 {totalPosts} 篇文章</p>
 
-    <div class="space-y-6">
-      {posts.map((post) => (
-        <ArticleCard
-          id={post.id}
-          title={post.data.title}
-          description={post.data.description}
-          category={post.data.category}
-          tags={post.data.tags}
-          date={post.data.date}
-        />
-      ))}
-    </div>
+    {posts.length > 0 ? (
+      <div class="space-y-6">
+        {posts.map((post) => (
+          <ArticleCard
+            id={post.id}
+            title={post.data.title}
+            description={post.data.description}
+            category={post.data.category}
+            tags={post.data.tags}
+            date={post.data.date}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="text-stone-500 dark:text-stone-400 text-center py-12">暂无文章</p>
+    )}
+
+    {totalPages > 1 && (
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl={`/tags/${tag}`}
+      />
+    )}
   </section>
 
   <Footer slot="footer" />

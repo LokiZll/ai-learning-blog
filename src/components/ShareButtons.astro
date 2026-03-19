@@ -21,25 +21,80 @@ const encodedTitle = encodeURIComponent(title);
     </svg>
   </button>
   <a
-    href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+    href={`https://service.weibo.com/share/share.php?url=${encodedUrl}&title=${encodedTitle}`}
     target="_blank"
     rel="noopener"
     class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
-    title="分享到 Twitter"
+    title="分享到微博"
   >
     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      <path d="M20.194 14.197c0 3.248-3.584 5.886-8.006 5.886-4.423 0-8.006-2.638-8.006-5.886 0-3.248 3.583-5.886 8.006-5.886 4.422 0 8.006 2.638 8.006 5.886zm-2.959-.53c-.412-.528-.95-.795-1.606-.795-.656 0-1.195.267-1.606.795-.467.6-.526 1.342-.176 2.205.35.862 1.03 1.45 1.782 1.45.751 0 1.431-.588 1.782-1.45.349-.863.291-1.605-.176-2.205zm-4.134 2.434c-1.072-.516-2.138-.588-2.138-.588s.116-.755.488-1.453c.435-.817 1.205-1.305 1.928-1.305.371 0 .733.116 1.048.326.315-.385.564-.81.564-.81s-.382-.283-.91-.283c-.756 0-1.37.614-1.37 1.37 0 .756.614 1.37 1.37 1.37.113 0 .221-.014.325-.04-.635.243-1.205.315-1.205.315z"/>
+    </svg>
+  </a>
+  <a
+    href={`http://connect.qq.com/widget/shareqq/index.html?url=${encodedUrl}&title=${encodedTitle}`}
+    target="_blank"
+    rel="noopener"
+    class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+    title="分享到QQ"
+  >
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-2-13h4v4h-4V7zm-4 2h4v4H6V9zm8 0h4v4h-4V9zm-2 6h4v4h-4v-4z"/>
+    </svg>
+  </a>
+  <button
+    id="wechat-share-btn"
+    class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+    title="分享到微信"
+  >
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.045c.134 0 .24-.111.24-.247 0-.06-.024-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+    </svg>
+  </button>
+  <a
+    href={`https://share.dingtalk.com/renminshare?to=dingtalk&text=${encodedTitle}&url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener"
+    class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-stone-500 dark:text-stone-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+    title="分享到钉钉"
+  >
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.498 14.382c-.301-.15-1.767-.867-2.049-.966-.421-.145-.714-.198-1.02.2-.302.392-.392.967-.481 1.176-.089.21-.357.28-.68.14-.32-.14-1.35-.433-2.56-1.38-.9-.702-1.51-1.565-1.69-1.831-.178-.266-.06-.41.134-.543.193-.132.42-.342.63-.513.209-.171.279-.27.42-.45.149-.18.06-.333-.03-.466-.089-.132-.801-1.946-.801-2.086 0-.27.22-.495.5-.495.18 0 .39.03.6.09.209.06.49.18.78.36.291.18 1.26.48 2.065 1.56.8 1.08 1.36 2.225 1.52 2.571.16.345.51.45.68.48.17.03.35.03.5-.03.16-.06.49-.2.94-.66.45-.46.75-1.1.84-1.27.089-.171.089-.32.06-.44-.03-.12-.03-.27-.06-.36zM21.698 16.998c-.15-.45-1.07-.96-1.72-1.05-.65-.09-1.44-.12-2.25-.03-.81.09-1.68.36-2.34.78-.66.42-1.08.93-1.26 1.08-.18.15-.45.18-.63.15-.18-.03-.36-.03-.54-.03-.18 0-.48.03-.78.27-.3.24-.75.72-.75 1.68 0 1.08.9 2.22 1.38 2.52.48.3 1.08.45 1.56.48.48.03.93.03 1.26-.03.33-.06.78-.24 1.2-.48.42-.24.81-.48 1.02-.66.21-.18.36-.15.54.03.18.18.54.54.78.78.24.24.42.36.54.45.12.09.24.15.33.21.09.06.15.12.24.18.09.06.12.09.15.15.03.06.03.09.06.12.03.03.03.06.06.09.03.03.03.06.06.09.03.06.03.09.06.12 0 0 .03.03.03.06.03.03.03.03.03.06 0 .03 0 .06.03.09 0 0 0 .03.03.03 0 .06-.03.12-.03.15-.03.06-.06.12-.12.21-.06.09-.12.15-.15.21-.03.03-.06.09-.06.12 0 .03-.03.06-.03.09 0 .06.03.12.09.21z"/>
     </svg>
   </a>
 </div>
 
 <script>
+  function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(textarea);
+    return Promise.resolve();
+  }
+
   const btn = document.getElementById('copy-link-btn');
   btn?.addEventListener('click', () => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    copyToClipboard(window.location.href).then(() => {
       const svg = btn.innerHTML;
       btn.innerHTML = '<span class="text-xs">已复制</span>';
       setTimeout(() => { btn.innerHTML = svg; }, 2000);
+    });
+  });
+
+  const wechatBtn = document.getElementById('wechat-share-btn');
+  wechatBtn?.addEventListener('click', () => {
+    copyToClipboard(window.location.href).then(() => {
+      const originalContent = wechatBtn.innerHTML;
+      wechatBtn.innerHTML = '<span class="text-xs">已复制</span>';
+      setTimeout(() => { wechatBtn.innerHTML = originalContent; }, 2000);
     });
   });
 </script>
