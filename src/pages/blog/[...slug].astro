@@ -1,27 +1,32 @@
 ---
 import { getCollection, render } from 'astro:content';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import CommentSection from '../../components/CommentSection.astro';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   const sorted = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-  return sorted.map((post, i) => ({
+  return sorted.map((post, index) => ({
     params: { slug: post.id },
     props: {
       post,
-      prevPost: sorted[i + 1] ? { id: sorted[i + 1].id, title: sorted[i + 1].data.title } : null,
-      nextPost: sorted[i - 1] ? { id: sorted[i - 1].id, title: sorted[i - 1].data.title } : null,
+      prevPost: sorted[index + 1] ? { id: sorted[index + 1].id, title: sorted[index + 1].data.title } : null,
+      nextPost: sorted[index - 1] ? { id: sorted[index - 1].id, title: sorted[index - 1].data.title } : null,
     },
   }));
 }
 
+const { slug } = Astro.params;
 const { post, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(post);
 
 // Reading time: estimate ~400 characters per minute for Chinese text
 const body = post.body ?? '';
-const readingTime = Math.max(1, Math.ceil(body.length / 400));
+const wordCount = body.length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 400));
 ---
 
 <ArticleLayout
@@ -37,7 +42,9 @@ const readingTime = Math.max(1, Math.ceil(body.length / 400));
   seriesOrder={post.data.seriesOrder}
   currentId={post.id}
   readingTime={readingTime}
+  wordCount={wordCount}
   updatedDate={post.data.updatedDate}
 >
   <Content />
+  <CommentSection slug={slug} />
 </ArticleLayout>

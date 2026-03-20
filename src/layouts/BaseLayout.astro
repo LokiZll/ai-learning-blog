@@ -4,10 +4,14 @@ interface Props {
   description?: string;
   ogType?: string;
   ogImage?: string;
+  keywords?: string;
+  author?: string;
 }
 
-const { title, description = 'AI 学习技能博客 - 记录和整理 AI 学习笔记', ogType = 'website', ogImage } = Astro.props;
+const { title, description = 'AI 学习技能博客 - 记录和整理 AI 学习笔记', ogType = 'website', ogImage, keywords, author = 'AI 学习博客' } = Astro.props;
 const pageTitle = `${title} | AI 学习博客`;
+const siteUrl = 'https://duoblog.com';
+const defaultOgImage = `${siteUrl}/og-default.png`;
 ---
 
 <html lang="zh-CN" class="scroll-smooth">
@@ -16,15 +20,17 @@ const pageTitle = `${title} | AI 学习博客`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="author" content={author} />
+    {keywords && <meta name="keywords" content={keywords} />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:url" content={`${siteUrl}${Astro.url.pathname}`} />
     <meta property="og:site_name" content="AI 学习博客" />
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:image" content={ogImage || defaultOgImage} />
     <title>{pageTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={Astro.url} />
+    <link rel="canonical" href={`${siteUrl}${Astro.url.pathname}`} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
